@@ -17,11 +17,15 @@ pub struct DiscordApiClient {
 impl DiscordApiClient {
     /// `bot_token` is the raw token of the OneFunded bot application (no "Bot " prefix —
     /// added here). `api_base` defaults to the public Discord API when `None`.
+    /// A provided base MUST include the scheme (http/https): without it flurl can't
+    /// resolve the host and treats the first path segment (the channel id) as the
+    /// host, connecting to "<channel_id>:80" — so a schemeless/blank base is ignored
+    /// and the default is used instead.
     pub fn new(bot_token: String, api_base: Option<String>) -> Self {
-        Self {
-            api_base: api_base.unwrap_or_else(|| DEFAULT_API_BASE.to_string()),
-            bot_token,
-        }
+        let api_base = api_base
+            .filter(|s| s.starts_with("http://") || s.starts_with("https://"))
+            .unwrap_or_else(|| DEFAULT_API_BASE.to_string());
+        Self { api_base, bot_token }
     }
 
     /// Post one message to a channel. Returns the created message id on success.
