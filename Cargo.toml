@@ -1,0 +1,16 @@
+[package]
+name = "discord-connector"
+version = "0.1.0"
+edition = "2021"
+
+# Thin HTTP client for the Discord REST API. Sends a channel message via the
+# existing OneFunded bot application (bot-token transport), returning the created
+# message id so the caller can build a permalink. Mirrors slack-connector.
+
+[dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+flurl = { git = "https://github.com/MyJetTools/fl-url.git", tag = "0.6.1" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
