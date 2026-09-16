@@ -14,3 +14,10 @@ flurl = { git = "https://github.com/MyJetTools/fl-url.git", tag = "0.6.1" }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
+# Only for the `basic` example: a bare binary (no service-sdk) must install a rustls
+# crypto provider before the first TLS connect. In the bridge, service-sdk does this
+# on startup, so the library itself needs no TLS deps. Enable ring so
+# install_default_crypto_providers() exists (same tag the flurl stack pulls).
+my-tls = { tag = "0.1.5", git = "https://github.com/MyJetTools/my-tls.git", features = [
+    "with-ring-crypto-providers",
+] }

@@ -4,6 +4,10 @@ use discord_connector::client::DiscordApiClient;
 //   DISCORD_BOT_TOKEN=<token> DISCORD_CHANNEL_ID=<id> cargo run --example basic
 #[tokio::main]
 async fn main() {
+    // A bare binary must install a rustls crypto provider before the first TLS
+    // connect; the bridge gets this from service-sdk instead.
+    my_tls::install_default_crypto_providers();
+
     let token = std::env::var("DISCORD_BOT_TOKEN").expect("DISCORD_BOT_TOKEN not set");
     let channel_id = std::env::var("DISCORD_CHANNEL_ID").expect("DISCORD_CHANNEL_ID not set");
 
