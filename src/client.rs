@@ -35,8 +35,24 @@ impl DiscordApiClient {
         channel_id: &str,
         content: &str,
     ) -> Result<MessageResponse, String> {
+        self.send_message_with_nonce(channel_id, content, None).await
+    }
+
+    /// Like `send_message`, but idempotent when `nonce` is given: a repeat of the same
+    /// request (retry after a timeout, a resent gRPC call) within Discord's nonce window
+    /// (a few minutes) returns the message created by the first one instead of posting
+    /// a duplicate. The nonce must be at most 25 characters and stable per message.
+    pub async fn send_message_with_nonce(
+        &self,
+        channel_id: &str,
+        content: &str,
+        nonce: Option<&str>,
+    ) -> Result<MessageResponse, String> {
+        let nonce = nonce.filter(|n| !n.is_empty());
         let payload = CreateMessageRequest {
             content: content.to_string(),
+            nonce: nonce.map(|n| n.to_string()),
+            enforce_nonce: nonce.map(|_| true),
         };
 
         let response = FlUrl::new(self.api_base.clone())
@@ -46,7 +62,7 @@ impl DiscordApiClient {
             .with_header("Content-Type", "application/json")
             .with_header("Authorization", format!("Bot {}", self.bot_token))
             // Discord requires a User-Agent on all API requests.
-            .with_header("User-Agent", "OneFunded-live-payouts (discord-connector, 0.1.0)")
+            .with_header("User-Agent", "OneFunded-live-payouts (discord-connector, 0.1.2)")
             .post(FlUrlBody::as_json(&payload))
             .await
             .map_err(|e| format!("Discord HTTP POST failed: {:?}", e))?;
