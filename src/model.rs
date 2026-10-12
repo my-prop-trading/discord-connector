@@ -26,6 +26,22 @@ pub struct MessageResponse {
     pub channel_id: Option<String>,
 }
 
+/// A failed send. `http_status` is Discord's HTTP status when a response arrived (so a
+/// caller can tell "no access" 403 / "bad token" 401 / "unknown channel" 404 from a
+/// rate limit or a server error without parsing text), None when none did (network,
+/// TLS, timeout). `message` is the full human-readable text.
+#[derive(Debug, Clone)]
+pub struct DiscordSendError {
+    pub http_status: Option<u16>,
+    pub message: String,
+}
+
+impl std::fmt::Display for DiscordSendError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.message)
+    }
+}
+
 /// Discord error payload (non-2xx), e.g. `{"message":"Missing Access","code":50001}`.
 #[derive(Deserialize, Debug)]
 pub struct DiscordErrorResponse {
